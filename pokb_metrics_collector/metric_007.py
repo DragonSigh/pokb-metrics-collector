@@ -11,6 +11,8 @@ from datetime import date
 
 first_date = config.first_date
 last_date = config.last_date
+yesterday_date = config.yesterday_date
+
 metric_path = config.current_path + "\\reports\\Показатель 7"
 
 
@@ -128,7 +130,7 @@ def analyze_data():
         + "\\Свод по закрытой диспансеризации "
         + str(first_date)
         + "_"
-        + str(last_date)
+        + str(yesterday_date)
         + ".xlsx",
     )
 
@@ -143,7 +145,7 @@ def analyze_data():
 
     df_pass_dvn = df_pass_dvn.drop(["План", "Факт"], axis=1)
     df_pass_dvn.loc["Период", ["% по показателю 7"]] = (
-        "c " + str(first_date) + " по " + str(last_date)
+        "c " + str(first_date) + " по " + str(yesterday_date)
     )
 
     utils.save_to_excel(df_pass_dvn, metric_path + "\\agg_7.xlsx")

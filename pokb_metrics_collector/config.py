@@ -33,6 +33,7 @@ actions = ActionChains(browser)
 # Период: с начала недели по сегодняшний день
 first_date = date.today() - timedelta(days=date.today().weekday())
 last_date = date.today()
+yesterday_date = date.today() - timedelta(days=1)
 
 # Если сегодня понедельник, то берем всю прошлую неделю
 monday = date.today() - timedelta(days=date.today().weekday())
