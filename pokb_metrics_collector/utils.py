@@ -9,6 +9,7 @@ def retry_with_backoff(retries=5, backoff_in_seconds=1):
     """
     Декоратор для повторного запуска функции
     """
+
     def rwb(f):
         def wrapper(*args, **kwargs):
             x = 0
@@ -18,20 +19,21 @@ def retry_with_backoff(retries=5, backoff_in_seconds=1):
                 except Exception:
                     if x == retries:
                         raise
-                    sleep = (backoff_in_seconds * 2 ** x +
-                             random.uniform(0, 1))
+                    sleep = backoff_in_seconds * 2**x + random.uniform(0, 1)
                     time.sleep(sleep)
                     x += 1
+
         return wrapper
+
     return rwb
 
 
 def complex_function(x):
     if isinstance(x, str):
-        first_name = x.split(' ')[1]
-        second_name = x.split(' ')[2]
-        last_name = x.split(' ')[3].replace(',', '')
-        return f'{first_name} {second_name} {last_name}'
+        first_name = x.split(" ")[1]
+        second_name = x.split(" ")[2]
+        last_name = x.split(" ")[3].replace(",", "")
+        return f"{first_name} {second_name} {last_name}"
     else:
         return 0
 
@@ -64,7 +66,7 @@ def download_wait(directory, timeout, nfiles=None):
         if nfiles and len(files) != nfiles:
             dl_wait = True
         for fname in files:
-            if fname.endswith('.crdownload'):
+            if fname.endswith(".crdownload"):
                 dl_wait = True
         seconds += 1
     return seconds
@@ -75,28 +77,30 @@ def save_to_excel(dframe: pd.DataFrame, path, index_arg=False):
     Cохранения датафрейма в Excel с автоподбором ширины столбца
         dframe: pd.DataFrame
             датафрейм
-        path: 
+        path:
             путь
         index_arg:
             сохранение индекса
     """
-    with pd.ExcelWriter(path, mode='w', engine='openpyxl') as writer:
+    with pd.ExcelWriter(path, mode="w", engine="openpyxl") as writer:
         dframe.to_excel(writer, index=index_arg)
         for column in dframe:
             column_width = max(dframe[column].astype(str).map(len).max(), len(column))
             col_idx = dframe.columns.get_loc(column)
-            writer.sheets['Sheet1'].column_dimensions[chr(65+col_idx)].width = column_width + 5
+            writer.sheets["Sheet1"].column_dimensions[chr(65 + col_idx)].width = (
+                column_width + 5
+            )
 
 
 def get_department(x):
     """
     Выделяем подразделения
     """
-    if re.match(r'ОСП \d', x):
-        return re.search(r'ОСП \d', x)[0]
-    elif re.match(r'ЦАОП', x):
-        return 'ЦАОП'
-    elif re.match(r'Ленинградская', x):
-        return 'Ленинградская 9'
+    if re.match(r"ОСП \d", x):
+        return re.search(r"ОСП \d", x)[0]
+    elif re.match(r"ЦАОП", x):
+        return "ЦАОП"
+    elif re.match(r"Ленинградская", x):
+        return "Ленинградская 9"
     else:
-        return '0'
+        return "0"

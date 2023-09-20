@@ -16,7 +16,7 @@ yesterday_date = config.yesterday_date
 metric_path = config.current_path + "\\reports\\Показатель 7"
 
 
-# @utils.retry_with_backoff(retries=5)
+@utils.retry_with_backoff(retries=5)
 def start_bi_report_saving():
     # Очистить предыдущие результаты
     shutil.rmtree(config.reports_path, ignore_errors=True)
@@ -37,9 +37,7 @@ def start_bi_report_saving():
 def analyze_data():
     # Загружаем отчёт в датафрейм
     df_pass_dvn = pd.read_excel(
-        config.reports_path + "\\Прохождение пациентами ДВН или ПМО.xlsx",
-        skiprows=1,
-        header=0,
+        config.reports_path + "\\Прохождение пациентами ДВН или ПМО.xlsx", skiprows=1, header=0
     )
 
     # Сконвертировать время закрытия карты в дату
@@ -61,17 +59,12 @@ def analyze_data():
 
     df_pass_dvn = df_pass_dvn[
         (df_pass_dvn["Вид обследования"] == "404н Диспансеризация")
-        | (
-            df_pass_dvn["Вид обследования"]
-            == "404н Профилактические медицинские осмотры"
-        )
+        | (df_pass_dvn["Вид обследования"] == "404н Профилактические медицинские осмотры")
     ]
 
     # Выделяем подразделение
     df_pass_dvn["Подразделение"] = df_pass_dvn["Структурное подразделение"].apply(
-        lambda x: re.search(r"ОСП \d", x)[0]
-        if re.match(r"^ОСП \d.*$", x)
-        else "Ленинградская 9"
+        lambda x: re.search(r"ОСП \d", x)[0] if re.match(r"^ОСП \d.*$", x) else "Ленинградская 9"
     )
     df_pass_dvn = df_pass_dvn.rename(columns={"Структурное подразделение": "Отделение"})
 
@@ -96,7 +89,7 @@ def analyze_data():
                 "Номер МКАБ",
                 "ФИО пациента",
                 "Врач подписывающий заключение диспансеризации",
-                "Дата закрытия карты диспансеризации",
+                "Дата закрытия карты диспансеризации"
             ],
             axis=1,
         )
@@ -105,6 +98,7 @@ def analyze_data():
         .reset_index()
     )
 
+    # План на неделю задаётся вручную
     planned = {
         "Ленинградская 9": 630,
         "ОСП 1": 2070,
@@ -113,7 +107,7 @@ def analyze_data():
         "ОСП 4": 1000,
         "ОСП 5": 560,
         "ОСП 6": 650,
-        "ОСП 7": 530,
+        "ОСП 7": 530
     }
 
     df_pass_dvn["План"] = pd.Series(data=planned).tolist()
@@ -131,26 +125,20 @@ def analyze_data():
         + str(first_date)
         + "_"
         + str(yesterday_date)
-        + ".xlsx",
+        + ".xlsx"
     )
 
-    # Аггрегация для дашборда
-
+    # Агрегация для дашборда
     df_pass_dvn.loc["ПОКБ"] = df_pass_dvn.sum(numeric_only=True)
     df_pass_dvn.loc["ПОКБ", ["Подразделение"]] = "ПОКБ"
-
     df_pass_dvn["% по показателю 7"] = round(
         df_pass_dvn["Факт"] / df_pass_dvn["План"] * 100
     ).astype(int)
-
     df_pass_dvn = df_pass_dvn.drop(["План", "Факт"], axis=1)
     df_pass_dvn.loc["Период", ["% по показателю 7"]] = (
         "c " + str(first_date) + " по " + str(yesterday_date)
     )
-
     utils.save_to_excel(df_pass_dvn, metric_path + "\\agg_7.xlsx")
-
-    print(df_pass_dvn)
 
 
 # Пропустить выгрузку, если нужный файл за сегодняшний день уже есть в папке
