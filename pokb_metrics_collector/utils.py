@@ -1,6 +1,8 @@
 import os
 import time
 import random
+import re
+import pandas as pd
 
 
 def retry_with_backoff(retries=5, backoff_in_seconds=1):
@@ -66,3 +68,35 @@ def download_wait(directory, timeout, nfiles=None):
                 dl_wait = True
         seconds += 1
     return seconds
+
+
+def save_to_excel(dframe: pd.DataFrame, path, index_arg=False):
+    """
+    Cохранения датафрейма в Excel с автоподбором ширины столбца
+        dframe: pd.DataFrame
+            датафрейм
+        path: 
+            путь
+        index_arg:
+            сохранение индекса
+    """
+    with pd.ExcelWriter(path, mode='w', engine='openpyxl') as writer:
+        dframe.to_excel(writer, index=index_arg)
+        for column in dframe:
+            column_width = max(dframe[column].astype(str).map(len).max(), len(column))
+            col_idx = dframe.columns.get_loc(column)
+            writer.sheets['Sheet1'].column_dimensions[chr(65+col_idx)].width = column_width + 5
+
+
+def get_department(x):
+    """
+    Выделяем подразделения
+    """
+    if re.match(r'ОСП \d', x):
+        return re.search(r'ОСП \d', x)[0]
+    elif re.match(r'ЦАОП', x):
+        return 'ЦАОП'
+    elif re.match(r'Ленинградская', x):
+        return 'Ленинградская 9'
+    else:
+        return '0'
