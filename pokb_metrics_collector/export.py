@@ -5,6 +5,12 @@ import gspread as gs
 from functools import reduce
 from oauth2client.service_account import ServiceAccountCredentials
 
+
+def shift_row_to_bottom(df, index_to_shift):
+    idx = [i for i in df.index if i != index_to_shift]
+    return df.loc[idx + [index_to_shift]]
+
+
 # Настройки
 path_to_credential = "pokb-399111-f04c71766977.json"
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -35,11 +41,6 @@ df_final = (
     )
     .replace(-1, "в рейтинге не участвует")
 )
-
-
-def shift_row_to_bottom(df, index_to_shift):
-    idx = [i for i in df.index if i != index_to_shift]
-    return df.loc[idx + [index_to_shift]]
 
 
 df_final = shift_row_to_bottom(df_final, 8)

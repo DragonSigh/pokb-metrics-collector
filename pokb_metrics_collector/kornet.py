@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 browser = config.browser
 actions = config.actions
-reports_path = os.path.join(config.reports_path, "from_kornet")
+reports_path = config.reports_path
 
 
 def authorize(login_data: str, password_data: str):
@@ -61,6 +61,6 @@ def export_report():
     browser.execute_script(
         "$find('ctl00_plate_reportViewer').exportReport('EXCELOPENXML');"
     )
-    utils.download_wait(reports_path, 20)
+    utils.download_wait(config.reports_path, 20)
     logger.debug("Сохранение файла с отчетом успешно")
     browser.get("http://llo.emias.mosreg.ru/korvet/Admin/SignOut")

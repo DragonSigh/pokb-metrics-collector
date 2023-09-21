@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 browser = config.browser
 actions = config.actions
-reports_path = os.path.join(config.reports_path, "from_emias")
+reports_path = config.reports_path
 
 
 def authorize(login_data: str, password_data: str):

@@ -28,16 +28,7 @@ def retry_with_backoff(retries=5, backoff_in_seconds=1):
     return rwb
 
 
-def complex_function(x):
-    if isinstance(x, str):
-        first_name = x.split(" ")[1]
-        second_name = x.split(" ")[2]
-        last_name = x.split(" ")[3].replace(",", "")
-        return f"{first_name} {second_name} {last_name}"
-    else:
-        return 0
-
-
+# Функция для получения последнего файла в директории
 def get_newest_file(path):
     files = os.listdir(path)
     paths = [os.path.join(path, basename) for basename in files]
