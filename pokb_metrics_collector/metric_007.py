@@ -135,9 +135,7 @@ def analyze_data():
         df_pass_dvn["Факт"] / df_pass_dvn["План"] * 100
     ).astype(int)
     df_pass_dvn = df_pass_dvn.drop(["План", "Факт"], axis=1)
-    df_pass_dvn.loc["Период", ["% по показателю 7"]] = (
-        "c " + str(first_date) + " по " + str(yesterday_date)
-    )
+    print(df_pass_dvn)
     utils.save_to_excel(df_pass_dvn, metric_path + "\\agg_7.xlsx")
 
 
