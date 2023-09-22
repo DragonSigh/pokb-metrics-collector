@@ -1,13 +1,11 @@
 import config
 import utils
 import bi_emias
-import shutil
 import os
 import re
 import json
 import pandas as pd
 from loguru import logger
-from datetime import date
 
 first_date = config.first_date
 last_date = config.last_date
@@ -19,7 +17,7 @@ metric_path = config.current_path + "\\reports\\Показатель 7"
 @utils.retry_with_backoff(retries=5)
 def start_bi_report_saving():
     # Очистить предыдущие результаты
-    shutil.rmtree(config.reports_path, ignore_errors=True)
+    # shutil.rmtree(config.reports_path, ignore_errors=True)
     # Получить путь к файлу с данными для авторизации
     credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")
     f = open(credentials_path, "r", encoding="utf-8")
@@ -28,9 +26,10 @@ def start_bi_report_saving():
     for _departments in data["departments"]:
         for _units in _departments["units"]:
             bi_emias.authorize(_units["login"], _units["password"])
-    # Определение дат
-    bi_emias.load_any_report("pass_dvn", first_date, last_date)
-    bi_emias.export_report()
+    # Выгрузка отчета
+    if not utils.is_actual_report_exist("Прохождение пациентами ДВН или ПМО.xlsx"):
+        bi_emias.load_any_report("pass_dvn", first_date, last_date)
+        bi_emias.export_report()
     logger.debug("Выгрузка из BI ЕМИАС завершена")
 
 
@@ -41,6 +40,24 @@ def analyze_data():
     )
 
     # Сконвертировать время закрытия карты в дату
+    df_pass_dvn["День недели"] = pd.to_datetime(
+        df_pass_dvn["Дата закрытия карты диспансеризации"], format="%d.%m.%Y %H:%M:%S"
+    ).dt.day_name("Russian")
+
+    df_pass_dvn["День недели"] = pd.Categorical(
+        df_pass_dvn["День недели"],
+        categories=[
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота",
+            "Воскресенье",
+        ],
+        ordered=True,
+    )
+
     df_pass_dvn["Дата закрытия карты диспансеризации"] = pd.to_datetime(
         df_pass_dvn["Дата закрытия карты диспансеризации"], format="%d.%m.%Y %H:%M:%S"
     ).dt.date
@@ -89,14 +106,21 @@ def analyze_data():
                 "Номер МКАБ",
                 "ФИО пациента",
                 "Врач подписывающий заключение диспансеризации",
-                "Дата закрытия карты диспансеризации"
+                "Дата закрытия карты диспансеризации",
             ],
             axis=1,
         )
-        .groupby(["Подразделение"])
+        .groupby(["Подразделение", "День недели"])
         .count()
         .reset_index()
     )
+
+    df_pass_dvn = df_pass_dvn.loc[df_pass_dvn["count"] != 0]
+
+    df_pass_dvn["Итог"] = df_pass_dvn[["Подразделение", "count"]].groupby("Подразделение").cumsum()
+    df_pass_dvn = df_pass_dvn.pivot(index="Подразделение", columns="День недели", values="Итог")
+
+    print(df_pass_dvn)
 
     # План на неделю задаётся вручную
     planned = {
@@ -107,7 +131,7 @@ def analyze_data():
         "ОСП 4": 1000,
         "ОСП 5": 560,
         "ОСП 6": 650,
-        "ОСП 7": 530
+        "ОСП 7": 530,
     }
 
     df_pass_dvn["План"] = pd.Series(data=planned).tolist()
@@ -125,7 +149,7 @@ def analyze_data():
         + str(first_date)
         + "_"
         + str(yesterday_date)
-        + ".xlsx"
+        + ".xlsx",
     )
 
     # Агрегация для дашборда
@@ -139,11 +163,5 @@ def analyze_data():
     utils.save_to_excel(df_pass_dvn, metric_path + "\\agg_7.xlsx")
 
 
-# Пропустить выгрузку, если нужный файл за сегодняшний день уже есть в папке
-file = config.reports_path + "\\Прохождение пациентами ДВН или ПМО.xlsx"
-if os.path.isfile(file):
-    created = os.path.getctime(file)
-    if not date.fromtimestamp(created) == date.today():
-        start_bi_report_saving()
-
+start_bi_report_saving()
 analyze_data()

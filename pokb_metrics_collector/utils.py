@@ -2,6 +2,8 @@ import os
 import time
 import random
 import re
+import config
+from datetime import date
 import pandas as pd
 
 
@@ -95,3 +97,15 @@ def get_department(x):
         return "Ленинградская 9"
     else:
         return "0"
+
+
+# Проверить если нужный файл с отчётом за сегодняшний день уже есть в папке
+def is_actual_report_exist(filename):
+    file = config.reports_path + "\\" + filename
+    created = os.path.getctime(file)
+
+    if os.path.isfile(file):
+        if not date.fromtimestamp(created) == date.today():
+            os.remove(file)
+            return False
+    return True

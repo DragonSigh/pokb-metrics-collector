@@ -6,7 +6,6 @@ import re
 import json
 import pandas as pd
 from loguru import logger
-from datetime import date
 
 first_date = config.first_date
 last_date = config.last_date
@@ -26,21 +25,13 @@ def start_bi_report_saving():
         for _units in _departments["units"]:
             bi_emias.authorize(_units["login"], _units["password"])
     # Пропустить выгрузку, если нужные файлы за сегодняшний день уже есть в папке
-    file1 = config.reports_path + "\\Прохождение пациентами ДВН или ПМО.xlsx"
-    file2 = config.reports_path + "\\Количество карт ДВН и УДВН закрытых через ТМК.xlsx"
-    created1 = os.path.getctime(file1)
-    created2 = os.path.getctime(file2)
+    if not utils.is_actual_report_exist("Прохождение пациентами ДВН или ПМО.xlsx"):
+        bi_emias.load_any_report("pass_dvn", first_date, last_date)
+        bi_emias.export_report()
+    if not utils.is_actual_report_exist("Количество карт ДВН и УДВН закрытых через ТМК.xlsx"):
+        bi_emias.load_any_report("pass_dvn", first_date, last_date)
+        bi_emias.export_report()
 
-    if os.path.isfile(file1):
-        if not date.fromtimestamp(created1) == date.today():
-            os.remove(file1)
-            bi_emias.load_any_report("pass_dvn", first_date, last_date)
-            bi_emias.export_report()
-    if os.path.isfile(file2):
-        if not date.fromtimestamp(created2) == date.today():
-            os.remove(file2)
-            bi_emias.load_any_report("disp_tmk", first_date, last_date)
-            bi_emias.export_report()
     logger.debug("Выгрузка из BI ЕМИАС завершена")
 
 
