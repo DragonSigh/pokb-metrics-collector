@@ -12,7 +12,7 @@ yesterday_date = config.yesterday_date
 metric_path = config.current_path + "\\reports\\Показатель 19"
 
 
-#@utils.retry_with_backoff(retries=5)
+# @utils.retry_with_backoff(retries=5)
 def start_019_report_saving():
     # Получить путь к файлу с данными для авторизации
     credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")

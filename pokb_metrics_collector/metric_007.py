@@ -16,21 +16,21 @@ metric_path = config.current_path + "\\reports\\Показатель 7"
 
 @utils.retry_with_backoff(retries=5)
 def start_bi_report_saving():
-    # Очистить предыдущие результаты
-    # shutil.rmtree(config.reports_path, ignore_errors=True)
-    # Получить путь к файлу с данными для авторизации
-    credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")
-    f = open(credentials_path, "r", encoding="utf-8")
-    data = json.load(f)
-    f.close()
-    for _departments in data["departments"]:
-        for _units in _departments["units"]:
-            bi_emias.authorize(_units["login"], _units["password"])
-    # Выгрузка отчета
-    if not utils.is_actual_report_exist("Прохождение пациентами ДВН или ПМО.xlsx"):
+    if not utils.is_actual_report_exist(
+        config.reports_path + "\\" + "Прохождение пациентами ДВН или ПМО.xlsx"
+    ):
+        # Получить путь к файлу с данными для авторизации
+        credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")
+        f = open(credentials_path, "r", encoding="utf-8")
+        data = json.load(f)
+        f.close()
+        for _departments in data["departments"]:
+            for _units in _departments["units"]:
+                bi_emias.authorize(_units["login"], _units["password"])
+        # Выгрузка отчета
         bi_emias.load_any_report("pass_dvn", first_date, last_date)
         bi_emias.export_report()
-    logger.debug("Выгрузка из BI ЕМИАС завершена")
+        logger.debug("Выгрузка из BI ЕМИАС завершена")
 
 
 def analyze_data():
@@ -117,8 +117,9 @@ def analyze_data():
 
     df_pass_dvn = df_pass_dvn.loc[df_pass_dvn["count"] != 0]
 
-    df_pass_dvn["Итог"] = df_pass_dvn[["Подразделение", "count"]].groupby("Подразделение").cumsum()
-    df_pass_dvn = df_pass_dvn.pivot(index="Подразделение", columns="День недели", values="Итог")
+    # df_pass_dvn["Итог"] = df_pass_dvn[["Подразделение", "count"]].groupby("Подразделение").cum
+    df_pass_dvn = df_pass_dvn.pivot(index="Подразделение", columns="День недели", values="count")
+    df_pass_dvn["Итого"] = df_pass_dvn.sum(axis=1, skipna=True).astype(int)
 
     print(df_pass_dvn)
 
@@ -135,7 +136,9 @@ def analyze_data():
     }
 
     df_pass_dvn["План"] = pd.Series(data=planned).tolist()
-    df_pass_dvn = df_pass_dvn.rename(columns={"count": "Факт"})
+    # df_pass_dvn = df_pass_dvn.rename(columns={"count": "Факт"})
+
+    print(df_pass_dvn)
 
     try:
         os.mkdir(metric_path)
@@ -150,17 +153,34 @@ def analyze_data():
         + "_"
         + str(yesterday_date)
         + ".xlsx",
+        True,
     )
 
     # Агрегация для дашборда
     df_pass_dvn.loc["ПОКБ"] = df_pass_dvn.sum(numeric_only=True)
-    df_pass_dvn.loc["ПОКБ", ["Подразделение"]] = "ПОКБ"
+
     df_pass_dvn["% по показателю 7"] = round(
-        df_pass_dvn["Факт"] / df_pass_dvn["План"] * 100
+        df_pass_dvn["Итого"] / df_pass_dvn["План"] * 100
     ).astype(int)
-    df_pass_dvn = df_pass_dvn.drop(["План", "Факт"], axis=1)
+    df_pass_dvn = df_pass_dvn.drop(["План", "Итого"], axis=1)
+
+    df_pass_dvn = df_pass_dvn.drop(
+        [
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота",
+            "Воскресенье",
+            "План",
+            "Итого",
+        ],
+        axis=1,
+        errors="ignore",
+    )
     print(df_pass_dvn)
-    utils.save_to_excel(df_pass_dvn, metric_path + "\\agg_7.xlsx")
+    utils.save_to_excel(df_pass_dvn, metric_path + "\\agg_7.xlsx", True)
 
 
 start_bi_report_saving()

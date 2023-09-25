@@ -2,6 +2,7 @@ import config
 import utils
 import os
 from loguru import logger
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -17,6 +18,7 @@ def authorize(login_data: str, password_data: str):
     Авторизация в ЕМИАС МО
     http://main.emias.mosreg.ru/MIS/Podolsk_GKB
     """
+    logger.debug("Начинается авторизация в ЕМИАС")
     # Очистить куки
     browser.delete_all_cookies()
     # Убедиться что открыта только одна вкладка
@@ -108,11 +110,15 @@ def export_report(cabinet):
     except FileExistsError:
         pass
     # Сохранить в Excel
-    WebDriverWait(browser, 300).until(
-        EC.text_to_be_present_in_element_value(
-            (By.XPATH, "/html/body/div/div[2]/div/div/form[1]/input"), "done"
+    try:
+        WebDriverWait(browser, 300).until(
+            EC.text_to_be_present_in_element_value(
+                (By.XPATH, "/html/body/div/div[2]/div/div/form[1]/input"), "done"
+            )
         )
-    )
+    except TimeoutException:
+        browser.refresh()
+
     element = browser.find_element(By.XPATH, '//*[@id="dlbId"]')
     element.click()
     utils.download_wait(reports_path, 20)

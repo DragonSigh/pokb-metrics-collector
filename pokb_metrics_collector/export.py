@@ -39,9 +39,8 @@ df_final = (
             "% по показателю 24": int
         }
     )
-    .replace(-1, "в рейтинге не участвует")
+    .replace(-1, "нет данных")
 )
-
 
 df_final = shift_row_to_bottom(df_final, 8)
 

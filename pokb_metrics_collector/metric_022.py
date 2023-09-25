@@ -255,8 +255,10 @@ def analyze_data(df_kornet, df_emias):
     utils.save_to_excel(df_kornet, metric_path + "\\agg_22.xlsx", index_arg=False)
 
 
-start_kornet_report_saving()
-df_kornet = pd.read_excel(metric_path + "\\Промежуточный КОРНЕТ.xlsx", skiprows=1, header=0)
-start_emias_report_saving()
-df_emias = pd.read_excel(metric_path + "\\Промежуточный ЕМИАС.xlsx", skiprows=1, header=0)
+if not utils.is_actual_report_exist(metric_path + "\\Промежуточный КОРНЕТ.xlsx"):
+    start_kornet_report_saving()
+df_kornet = pd.read_excel(metric_path + "\\Промежуточный КОРНЕТ.xlsx", header=0)
+if not utils.is_actual_report_exist(metric_path + "\\Промежуточный ЕМИАС.xlsx"):
+    start_emias_report_saving()
+df_emias = pd.read_excel(metric_path + "\\Промежуточный ЕМИАС.xlsx", header=0)
 analyze_data(df_kornet, df_emias)

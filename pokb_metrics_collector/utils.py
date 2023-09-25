@@ -2,7 +2,6 @@ import os
 import time
 import random
 import re
-import config
 from datetime import date
 import pandas as pd
 
@@ -100,12 +99,11 @@ def get_department(x):
 
 
 # Проверить если нужный файл с отчётом за сегодняшний день уже есть в папке
-def is_actual_report_exist(filename):
-    file = config.reports_path + "\\" + filename
-    created = os.path.getctime(file)
-
-    if os.path.isfile(file):
+def is_actual_report_exist(filepath):
+    exist = os.path.isfile(filepath) and os.access(filepath, os.F_OK)
+    if exist:
+        created = os.path.getctime(filepath)
         if not date.fromtimestamp(created) == date.today():
-            os.remove(file)
-            return False
-    return True
+            os.remove(filepath)
+            exist = False
+    return exist
