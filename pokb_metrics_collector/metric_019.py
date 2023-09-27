@@ -72,5 +72,6 @@ def analyze_019_data():
     df_tk_cells_doc_v2 = df_tk_cells_doc_v2.loc[df_tk_cells_doc_v2["Занято"] != 0]
 
 
+
 # start_019_report_saving()
 analyze_019_data()

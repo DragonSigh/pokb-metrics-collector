@@ -25,11 +25,15 @@ def start_bi_report_saving():
         for _units in _departments["units"]:
             bi_emias.authorize(_units["login"], _units["password"])
     # Пропустить выгрузку, если нужные файлы за сегодняшний день уже есть в папке
-    if not utils.is_actual_report_exist("Прохождение пациентами ДВН или ПМО.xlsx"):
+    if not utils.is_actual_report_exist(
+        config.reports_path + "\\Прохождение пациентами ДВН или ПМО.xlsx"
+    ):
         bi_emias.load_any_report("pass_dvn", first_date, last_date)
         bi_emias.export_report()
-    if not utils.is_actual_report_exist("Количество карт ДВН и УДВН закрытых через ТМК.xlsx"):
-        bi_emias.load_any_report("pass_dvn", first_date, last_date)
+    if not utils.is_actual_report_exist(
+        config.reports_path + "\\Количество карт ДВН и УДВН закрытых через ТМК.xlsx"
+    ):
+        bi_emias.load_any_report("disp_tmk", first_date, last_date)
         bi_emias.export_report()
 
     logger.debug("Выгрузка из BI ЕМИАС завершена")
@@ -41,7 +45,7 @@ def analyze_data():
     df_disp_tmk = pd.read_excel(
         config.reports_path + "\\Количество карт ДВН и УДВН закрытых через ТМК.xlsx",
         skiprows=1,
-        header=0
+        header=0,
     )
     # Выбираем ПОКБ
     df_disp_tmk = df_disp_tmk.loc[df_disp_tmk["ОГРН медицинской организации"] == 1215000036305]
@@ -79,9 +83,7 @@ def analyze_data():
 
     # 3. Из (2) убираем записи, где "Результат обращения" содержит "Направлен на II этап"
     df_disp_tmk = df_disp_tmk.rename(
-        columns={
-            "Закрытие диспансеризации через телемедицинские консультации": "Дата закрытия"
-        }
+        columns={"Закрытие диспансеризации через телемедицинские консультации": "Дата закрытия"}
     )
     df_pass_dvn = df_pass_dvn.rename(
         columns={
@@ -186,10 +188,7 @@ def analyze_data():
         .groupby(["Подразделение", "_merge"])
         .count()
         .reset_index()
-        .drop(
-            ["Отделение", "Врач", "ФИО пациента", "Номер МКАБ", "Дата закрытия"],
-            axis=1,
-        )
+        .drop(["Отделение", "Врач", "ФИО пациента", "Номер МКАБ", "Дата закрытия"], axis=1)
     )
 
     df_agg["sum"] = df_agg["count"].rolling(3).sum()
@@ -199,7 +198,7 @@ def analyze_data():
     df_agg["% по показателю 24"] = round(df_agg["count"] / df_agg["sum"] * 100).astype(int)
     df_agg = df_agg.drop(["_merge", "count", "sum"], axis=1)
     print(df_agg)
-    utils.save_to_excel(df_agg, metric_path + '\\agg_24.xlsx')
+    utils.save_to_excel(df_agg, metric_path + "\\agg_24.xlsx")
 
 
 start_bi_report_saving()
