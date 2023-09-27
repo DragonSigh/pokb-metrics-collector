@@ -72,11 +72,6 @@ def analyze_055_data():
     df_med_cert["Отделение"] = df_med_cert["Подразделение"]
     df_med_cert["Подразделение"] = df_med_cert["Подразделение"].apply(utils.get_department)
 
-    try:
-        os.mkdir(metric_path)
-    except FileExistsError:
-        pass
-
     for department in df_med_cert["Подразделение"].unique():
         df_temp = (
             df_med_cert[df_med_cert["Подразделение"] == department]
@@ -88,14 +83,15 @@ def analyze_055_data():
 
     # Агрегация
     df_agg = df_agg.reset_index()
+    df_agg = df_agg[["Подразделение", "Фамилия", "Дата рождения", "Номер справки", 'Признак "справка сформирована корректно"', 'Признак "необходимо сформировать справку по форме 095/у" для ТАП']]
     df_agg["Подразделение"] = df_agg["Подразделение"].apply(utils.get_department)
-    df_agg = df_agg.groupby(["Подразделение", 'Признак "справка сформирована корректно"']).count()
-    df_agg.loc["ПОКБ"] = df_agg.sum(numeric_only=True)
-WIP
-    print(df_agg)
+    #df_agg = df_agg.groupby(["Подразделение"])
+    #df_agg.loc["ПОКБ"] = df_agg.sum(numeric_only=True)
+    utils.save_to_excel(df_agg, metric_path + "\\agg_55.xlsx")
+
     #df_agg["% по показателю 55"] = round(
     #    df_agg["Из них по регламенту"] / df_agg["Всего рецептов"] * 100
     #)
 
-start_055_report_saving()
+#start_055_report_saving()
 analyze_055_data()

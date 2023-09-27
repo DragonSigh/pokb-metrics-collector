@@ -65,12 +65,24 @@ def analyze_019_data():
     df_tk_cells = df_tk_cells[(df_tk_cells["ОГРН"] == 1215000036305)]
     df_tk_cells_doc_v2 = df_tk_cells_doc_v2[(df_tk_cells_doc_v2["ОГРН"] == 1215000036305)]
     df_shed_lpu = df_shed_lpu[(df_shed_lpu["ОГРН"] == 1215000036305)]
+    # Убрать пробел из названия колонки
+    df_shed_lpu = df_shed_lpu.rename(columns={'ФИО врача ': 'ФИО врача'})
     # Оставляем только врачей и подразделения для сопоставления
     df_shed_lpu = df_shed_lpu[["ФИО врача", "Подразделение"]]
+    # Приводим подразделения к нормальному виду
+    df_shed_lpu["Подразделение"] = df_shed_lpu["Подразделение"].apply(lambda x: x.split(" [")[0])
     # 2.1 В столбце Занято не должно быть нулей
     df_tk_cells = df_tk_cells.loc[df_tk_cells["Занято"] != 0]
     df_tk_cells_doc_v2 = df_tk_cells_doc_v2.loc[df_tk_cells_doc_v2["Занято"] != 0]
 
+    df_final = df_tk_cells_doc_v2.merge(
+        df_shed_lpu, left_on=["Врач"], right_on=["ФИО врача"], how="left", indicator=True
+    )
+    try:
+        os.mkdir(metric_path)
+    except FileExistsError:
+        pass
+    utils.save_to_excel(df_final, metric_path + "\\123.xlsx")
 
 
 # start_019_report_saving()

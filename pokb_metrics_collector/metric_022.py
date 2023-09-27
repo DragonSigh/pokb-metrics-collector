@@ -106,7 +106,7 @@ def start_emias_report_saving():
     df_list = []
     for cabinet in cabinets_list:
         emias.load_system_report(cabinet, first_date, last_date)
-        emias.export_report(cabinet)
+        emias.export_system_report(cabinet)
         exported_file = utils.get_newest_file(config.reports_path)
         df_temp = pd.read_excel(
             exported_file, usecols="A, C, H, K, O", skiprows=range(1, 3), skipfooter=4, header=0

@@ -102,7 +102,7 @@ def load_system_report(cabinet_id, begin_date, end_date):
     logger.debug("Отчет открыт в браузере")
 
 
-def export_report(cabinet):
+def export_system_report(cabinet):
     logger.debug("Начинается формирование отчета")
     # Создать папку с отчётами, если её нет в системе
     try:
@@ -125,3 +125,31 @@ def export_report(cabinet):
     browser.close()
     browser.switch_to.window(browser.window_handles[0])
     logger.debug(f"Файл с отчетом сохранён в папку: {reports_path}")
+
+
+def load_tm_report(report_id, begin_date, end_date):
+    """
+    Открыть Отчеты
+    """
+    logger.debug(f"Открываю отчет с ID {report_id}")
+    element = browser.find_element(By.XPATH, '//*[@id="Portlet_9"]/div[2]/div[4]/a')
+    element.click()
+    browser.switch_to.window(browser.window_handles[1])
+    WebDriverWait(browser, 20).until(
+        EC.invisibility_of_element((By.XPATH, '//*[@id="loadertext"]'))
+    )
+    browser.get("http://tm.emias.mosreg.ru/report/reports/externalRun/" + report_id) 
+    element = browser.find_element(By.XPATH, '//*[@formcontrolname="beginDate"]')
+    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(
+        Keys.CONTROL
+    ).send_keys(begin_date).perform()
+    element = browser.find_element(By.XPATH, '//*[@formcontrolname="endDate"]')
+    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(
+        Keys.CONTROL
+    ).send_keys(end_date).perform()
+    element = browser.find_element(By.XPATH, '//*[@id="mat-input-1"]')
+    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(
+        Keys.CONTROL
+    ).send_keys("0").perform()
+
+    logger.debug("Отчет открыт в браузере")

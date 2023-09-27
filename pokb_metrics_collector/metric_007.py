@@ -110,7 +110,7 @@ def analyze_data():
             ],
             axis=1,
         )
-        .groupby(["Подразделение", "День недели"])
+        .groupby(["Подразделение", "День недели"], observed=True)
         .count()
         .reset_index()
     )
