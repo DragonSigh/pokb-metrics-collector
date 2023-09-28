@@ -22,8 +22,9 @@ wks = "Dashboard"
 df_7 = pd.read_excel(config.current_path + "\\reports\\Показатель 7" + "\\agg_7.xlsx", header=0)
 df_22 = pd.read_excel(config.current_path + "\\reports\\Показатель 22" + "\\agg_22.xlsx", header=0)
 df_24 = pd.read_excel(config.current_path + "\\reports\\Показатель 24" + "\\agg_24.xlsx", header=0)
+df_55 = pd.read_excel(config.current_path + "\\reports\\Показатель 55" + "\\agg_55.xlsx", header=0)
 
-data_frames = [df_7, df_22, df_24]
+data_frames = [df_7, df_22, df_24, df_55]
 
 df_final = reduce(
     lambda left, right: pd.merge(left, right, on=["Подразделение"], how="outer"), data_frames
@@ -36,7 +37,8 @@ df_final = (
             "Подразделение": str,
             "% по показателю 7": int,
             "% по показателю 22": int,
-            "% по показателю 24": int
+            "% по показателю 24": int,
+            "% по показателю 55": int
         }
     )
     .replace(-1, "нет данных")

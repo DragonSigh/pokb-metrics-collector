@@ -30,9 +30,9 @@ def authorize(login_data: str, password_data: str):
     browser.get("http://main.emias.mosreg.ru/MIS/Podolsk_gkb/")
     # Ввести логин
     login_field = browser.find_element(By.XPATH, '//*[@id="Login"]')
-    actions.click(login_field).key_down(Keys.CONTROL).send_keys("a").key_up(
-        Keys.CONTROL
-    ).send_keys(login_data).perform()
+    actions.click(login_field).key_down(Keys.CONTROL).send_keys("a").key_up(Keys.CONTROL).send_keys(
+        login_data
+    ).perform()
     # Ввести пароль
     password_field = browser.find_element(By.XPATH, '//*[@id="Password"]')
     actions.click(password_field).key_down(Keys.CONTROL).send_keys("a").key_up(
@@ -76,7 +76,7 @@ def load_system_report(cabinet_id, begin_date, end_date):
         elem.value = value;
     """,
         element,
-        begin_date.strftime("%d.%m.%Y") + "_" + end_date.strftime("%d.%m.%Y")
+        begin_date.strftime("%d.%m.%Y") + "_" + end_date.strftime("%d.%m.%Y"),
     )
     element = browser.find_element(By.XPATH, '//*[@id="Arguments_2__Value"]')
     browser.execute_script(
@@ -86,7 +86,7 @@ def load_system_report(cabinet_id, begin_date, end_date):
         elem.value = value;
     """,
         element,
-        cabinet_id
+        cabinet_id,
     )
     element = browser.find_element(By.XPATH, '//*[@id="Arguments_3__Value"]')
     browser.execute_script(
@@ -138,18 +138,20 @@ def load_tm_report(report_id, begin_date, end_date):
     WebDriverWait(browser, 20).until(
         EC.invisibility_of_element((By.XPATH, '//*[@id="loadertext"]'))
     )
-    browser.get("http://tm.emias.mosreg.ru/report/reports/externalRun/" + report_id) 
+
+    
+    browser.get("http://tm.emias.mosreg.ru/report/reports/externalRun/" + report_id)
     element = browser.find_element(By.XPATH, '//*[@formcontrolname="beginDate"]')
-    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(
-        Keys.CONTROL
-    ).send_keys(begin_date).perform()
+    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(Keys.CONTROL).send_keys(
+        begin_date
+    ).perform()
     element = browser.find_element(By.XPATH, '//*[@formcontrolname="endDate"]')
-    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(
-        Keys.CONTROL
-    ).send_keys(end_date).perform()
+    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(Keys.CONTROL).send_keys(
+        end_date
+    ).perform()
     element = browser.find_element(By.XPATH, '//*[@id="mat-input-1"]')
-    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(
-        Keys.CONTROL
-    ).send_keys("0").perform()
+    actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(Keys.CONTROL).send_keys(
+        "0"
+    ).perform()
 
     logger.debug("Отчет открыт в браузере")
