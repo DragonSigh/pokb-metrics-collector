@@ -2,7 +2,7 @@ import os
 import time
 import random
 import re
-from datetime import date
+from datetime import date, timedelta
 import pandas as pd
 
 
@@ -95,15 +95,15 @@ def get_department(x):
     elif re.match(r"Ленинградская", x):
         return "Ленинградская 9"
     else:
-        return "0"
+        return x
 
 
 # Проверить если нужный файл с отчётом за сегодняшний день уже есть в папке
-def is_actual_report_exist(filepath):
+def is_actual_report_exist(filepath, days=0):
     exist = os.path.isfile(filepath) and os.access(filepath, os.F_OK)
     if exist:
         created = os.path.getctime(filepath)
-        if not date.fromtimestamp(created) == date.today():
+        if not date.fromtimestamp(created) >= date.today() - timedelta(days):
             os.remove(filepath)
             exist = False
     return exist

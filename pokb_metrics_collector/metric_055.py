@@ -21,7 +21,7 @@ def start_055_report_saving():
     data = json.load(f)
     f.close()
     if not utils.is_actual_report_exist(
-        config.reports_path + "\\Детализированный отчет по справкам 095-у Освобождение(ЛПУ).xlsx"
+        config.reports_path + "Детализированный отчет по справкам 095-у Освобождение(ЛПУ).xlsx"
     ):
         for _departments in data["departments"]:
             for _units in _departments["units"]:
@@ -37,7 +37,7 @@ def analyze_055_data():
     # http://bi.mz.mosreg.ru/#form/medical_certificate_tap_dp2
     # (Детализированный отчет по справкам 095/у Освобождение (ЛПУ))
     df_med_cert = pd.read_excel(
-        config.reports_path + "\\Детализированный отчет по справкам 095-у Освобождение(ЛПУ).xlsx",
+        config.reports_path + "Детализированный отчет по справкам 095-у Освобождение(ЛПУ).xlsx",
         skiprows=1,
         header=0,
     )
@@ -88,6 +88,8 @@ def analyze_055_data():
     ]
     df_agg["Подразделение"] = df_agg["Подразделение"].apply(utils.get_department)
 
+    df_agg.loc["ПОКБ"] = df_agg.sum(numeric_only=True)
+
     df_agg = df_agg[df_agg['Признак "необходимо сформировать справку по форме 095/у" для ТАП'] == 1]
     df_agg["Na"] = df_agg["Номер справки"].isna()
     df_agg = (
@@ -117,7 +119,6 @@ def analyze_055_data():
 
     df_agg = df_agg.rename(columns={"rate": "% по показателю 55"})
 
-    df_agg.loc["ПОКБ"] = df_agg.sum(numeric_only=True)
     utils.save_to_excel(df_agg, metric_path + "\\agg_55.xlsx", index_arg=True)
 
 

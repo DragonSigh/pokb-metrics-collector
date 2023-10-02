@@ -24,12 +24,13 @@ def start_053_report_saving():
         for _units in _departments["units"]:
             bi_emias.authorize(_units["login"], _units["password"])
     if not utils.is_actual_report_exist(
-        config.reports_path + "\\Мониторинг выезда СМП к пациентам, состоящих на ДУ.xlsx"
+        config.reports_path
+        + "\\Мониторинг выезда скорой помощи к пациентам, состоящих на д-учете.xlsx"
     ):
         bi_emias.load_any_report("smp_disp", first_date, last_date)
         bi_emias.export_report()
     if not utils.is_actual_report_exist(
-        config.reports_path + "\\Детализация по картам диспансерного наблюдения.xlsx"
+        config.reports_path + "\\Детализация по картам диспансерного наблюдения.xlsx", 14
     ):
         bi_emias.load_any_report("dispensary_patients", first_date, last_date)
         bi_emias.export_report()
@@ -42,7 +43,8 @@ def analyze_053_data():
     # 1.1 http://bi.mz.mosreg.ru/#form/smp_disp
     # Мониторинг выезда СМП к пациентам, состоящих на ДУ
     smp_disp = pd.read_excel(
-        config.reports_path + "\\Мониторинг выезда СМП к пациентам, состоящих на ДУ.xlsx",
+        config.reports_path
+        + "\\Мониторинг выезда скорой помощи к пациентам, состоящих на д-учете.xlsx",
         skiprows=1,
         header=0,
     )
