@@ -17,7 +17,7 @@ metric_path = config.current_path + "\\reports\\Показатель 7"
 @utils.retry_with_backoff(retries=5)
 def start_bi_report_saving():
     if not utils.is_actual_report_exist(
-        config.reports_path + "\\" + "Прохождение пациентами ДВН или ПМО.xlsx"
+        config.reports_path + "Прохождение пациентами ДВН или ПМО.xlsx"
     ):
         # Получить путь к файлу с данными для авторизации
         credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")
@@ -99,8 +99,6 @@ def analyze_data():
                 "Статус актуальный",
                 "Дата обновления статуса",
                 "Текст сообщения",
-                "Группа здоровья",
-                "Результат обращения",
                 "Дата создания карты диспансеризации",
                 "Отделение",
                 "Номер МКАБ",

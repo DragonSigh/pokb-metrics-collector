@@ -107,12 +107,15 @@ def analyze_053_data():
             "Результат выезда",
             "Стационар/травмпункт",
             "Дата и время госпитализации",
-        ], axis=1
+        ],
+        axis=1,
     )
 
     # 3. Выставляем фильтры в отчете 1.2
     # 3.1 Медицинская организация "Подольская ОКБ"
-    df_dispensary_patients = df_dispensary_patients[(df_dispensary_patients["ОГРН"] == 1215000036305)]
+    df_dispensary_patients = df_dispensary_patients[
+        (df_dispensary_patients["ОГРН"] == 1215000036305)
+    ]
     # 3.2 Группа диагнозов E00-99, I00-99, J00-99, K00-93
 
     df_dispensary_patients["Фамилия"] = df_dispensary_patients[
@@ -160,17 +163,16 @@ def analyze_053_data():
             "Приоритетность вызова на ДН (в баллах, чем выше, тем приоритетнее)",
             "ID подразделения прикрепления",
             "mkabid",
-        ], axis=1
+        ],
+        axis=1,
     )
 
-    df_final = (
-        df_smp_disp.merge(
-            df_dispensary_patients,
-            left_on=["Фамилия", "Возраст", "Дата постановки на д-учет"],
-            right_on=["Фамилия", "Возраст", "Дата открытия карты ДН"],
-            how="left",
-            indicator=False,
-        )
+    df_final = df_smp_disp.merge(
+        df_dispensary_patients,
+        left_on=["Фамилия", "Возраст", "Дата постановки на д-учет"],
+        right_on=["Фамилия", "Возраст", "Дата открытия карты ДН"],
+        how="left",
+        indicator=False,
     )
     try:
         os.mkdir(metric_path)
