@@ -22,7 +22,8 @@ options.add_experimental_option(
         "download.default_directory": reports_path,
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
+        "safebrowsing.enabled": False,
+        "safebrowsing.disable_download_protection": True,
     },
 )
 

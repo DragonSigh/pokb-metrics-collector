@@ -15,20 +15,19 @@ metric_path = config.current_path + "\\reports\\Показатель 55"
 
 # @utils.retry_with_backoff(retries=5)
 def start_055_report_saving():
-    # Получить путь к файлу с данными для авторизации
-    credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")
-    f = open(credentials_path, "r", encoding="utf-8")
-    data = json.load(f)
-    f.close()
     if not utils.is_actual_report_exist(
         config.reports_path + "Детализированный отчет по справкам 095-у Освобождение(ЛПУ).xlsx"
     ):
+        # Получить путь к файлу с данными для авторизации
+        credentials_path = os.path.join(config.current_path, "auth-bi-emias.json")
+        f = open(credentials_path, "r", encoding="utf-8")
+        data = json.load(f)
+        f.close()
         for _departments in data["departments"]:
             for _units in _departments["units"]:
                 bi_emias.authorize(_units["login"], _units["password"])
         bi_emias.load_any_report("medical_certificate_tap_dp2", first_date, last_date)
         bi_emias.export_report()
-
     logger.debug("Выгрузка из BI ЕМИАС завершена")
 
 

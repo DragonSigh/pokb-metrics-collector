@@ -78,7 +78,7 @@ def start_kornet_report_saving():
     utils.save_to_excel(df_kornet, metric_path + "\\Промежуточный КОРНЕТ.xlsx")
 
 
-@utils.retry_with_backoff(retries=5)
+# @utils.retry_with_backoff(retries=5)
 def start_emias_report_saving():
     # Получить путь к файлу с данными для авторизации
     credentials_path = os.path.join(config.current_path, "auth-emias.json")

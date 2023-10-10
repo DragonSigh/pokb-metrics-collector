@@ -138,8 +138,6 @@ def load_tm_report(report_id, begin_date, end_date):
     WebDriverWait(browser, 20).until(
         EC.invisibility_of_element((By.XPATH, '//*[@id="loadertext"]'))
     )
-
-    
     browser.get("http://tm.emias.mosreg.ru/report/reports/externalRun/" + report_id)
     element = browser.find_element(By.XPATH, '//*[@formcontrolname="beginDate"]')
     actions.click(element).key_down(Keys.CONTROL).send_keys("a").key_up(Keys.CONTROL).send_keys(

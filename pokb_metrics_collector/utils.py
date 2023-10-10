@@ -88,14 +88,15 @@ def get_department(x):
     """
     Выделяем подразделения
     """
-    if re.match(r"ОСП \d", x):
-        return re.search(r"ОСП \d", x)[0]
-    elif re.match(r"ЦАОП", x):
+    value = str(x)
+    if re.match(r"^.*ОСП \d.*$", value):
+        return re.search(r"ОСП \d", value)[0]
+    elif re.match(r"^.*ЦАОП.*$", value):
         return "ЦАОП"
-    elif re.match(r"Ленинградская", x):
+    elif re.match(r"^.*Ленинградская.*$", value):
         return "Ленинградская 9"
     else:
-        return x
+        return value
 
 
 # Проверить если нужный файл с отчётом за сегодняшний день уже есть в папке
