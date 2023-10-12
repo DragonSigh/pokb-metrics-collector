@@ -89,8 +89,8 @@ def get_department(x):
     Выделяем подразделения
     """
     value = str(x)
-    if re.match(r"^.*ОСП \d.*$", value):
-        return re.search(r"ОСП \d", value)[0]
+    if re.match(r"^.*ОСП №?\d.*$", value):
+        return "ОСП " + re.search(r"\d{1}", value)[0]
     elif re.match(r"^.*ЦАОП.*$", value):
         return "ЦАОП"
     elif re.match(r"^.*Ленинградская.*$", value):
