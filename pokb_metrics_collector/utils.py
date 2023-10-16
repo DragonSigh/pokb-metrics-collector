@@ -90,7 +90,7 @@ def get_department(x):
     """
     value = str(x)
     if re.match(r"^.*ОСП №?\d.*$", value):
-        return "ОСП " + re.search(r"\d{1}", value)[0]
+        return re.search(r"ОСП №?\d{1}", value)[0]
     elif re.match(r"^.*ЦАОП.*$", value):
         return "ЦАОП"
     elif re.match(r"^.*Ленинградская.*$", value):
