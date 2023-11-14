@@ -118,6 +118,8 @@ def analyze_055_data():
 
     df_agg = df_agg.rename(columns={"rate": "% по показателю 55"})
 
+    print(df_agg)
+
     utils.save_to_excel(df_agg, metric_path + "\\agg_55.xlsx", index_arg=True)
 
 

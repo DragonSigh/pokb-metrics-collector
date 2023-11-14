@@ -79,9 +79,36 @@ def save_to_excel(dframe: pd.DataFrame, path, index_arg=False):
         for column in dframe:
             column_width = max(dframe[column].astype(str).map(len).max(), len(column))
             col_idx = dframe.columns.get_loc(column)
-            writer.sheets["Sheet1"].column_dimensions[chr(65 + col_idx)].width = (
-                column_width + 5
-            )
+            writer.sheets["Sheet1"].column_dimensions[chr(65 + col_idx)].width = column_width + 5
+
+
+def get_new_department_name(x):
+    """
+    Обновляем старые подразделения до ОСП
+    """
+    value = str(x)
+    if "Филиал №6 ГБУЗ МО Подольская ОКБ (Закрыто)" in value
+        or 'Климовская ЦГБ' in value:
+        return "ОСП 6"
+    elif "ГБУЗ МО «Подольская РБ» (Закрыто)" in value:
+        return "ОСП 4"
+    elif 'ГБУЗ МО "Подольская городская больница №2" (Закрыто)' in value:
+        return "ОСП 2"
+    elif "ГБУЗ МО Львовская Районная Больница (Закрыто)" in value:
+        return "ОСП 7"
+    elif "ГБУЗ МО Подольская ГКБ №3 (Закрыто)" in value
+        or 'ПГКБ № 3' in value:
+        return "ОСП 3"
+    elif (
+        "ГБУЗ МО Подольская ГП №1 (Закрыто)" in value
+        or 'ПГП №1' in value
+        or 'Подольская городская поликлиника №1' in value
+    ):
+        return "ОСП 1"
+    elif "ГБУЗ МО «Климовская ГБ №2» (Закрыто)" in value:
+        return "ОСП 5"
+    else:
+        return value
 
 
 def get_department(x):
@@ -95,6 +122,8 @@ def get_department(x):
         return "ЦАОП"
     elif re.match(r"^.*Ленинградская.*$", value):
         return "Ленинградская 9"
+    elif pd.isna(x):
+        return "Не указано"
     else:
         return value
 
