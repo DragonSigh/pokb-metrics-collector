@@ -1,10 +1,7 @@
 import config
 import utils
-import bi_emias
-import os
 from datetime import date, timedelta
 import pandas as pd
-from loguru import logger
 
 first_date = config.first_date
 last_date = config.last_date
@@ -26,6 +23,14 @@ def analyze_187_data():
         skiprows=1,
         header=0,
     )
+
+    # MySQL скрипт
+    df_taps = pd.read_csv(config.reports_path + "taps.csv", engine="python", header=0)
+
+    df_taps = df_taps.drop_duplicates(
+        subset=["last_name", "first_name", "middle_name", "birth_year"], keep="first"
+    )
+
     # Только Подольская ОКБ
     df_pall = df_pall[(df_pall["ОГРН"] == 1215000036305)]
 
@@ -48,13 +53,54 @@ def analyze_187_data():
         ]
     ]
 
+    df_pall = df_pall.merge(
+        df_taps,
+        how="left",
+        left_on=["Фамилия пациента", "Имя пациента", "Отчество пациента", "Год рождения пациента"],
+        right_on=["last_name", "first_name", "middle_name", "birth_year"],
+    )
+
+    df_pall["tap_date"] = pd.to_datetime(df_pall["tap_date"], format="%Y-%m-%d").dt.date
+
+    df_pall = df_pall.sort_values(by="tap_date")
+
+    df_pall = df_pall[
+        [
+            "Подразделение",
+            "Отделение",
+            "mkab_number",
+            "Фамилия пациента",
+            "Имя пациента",
+            "Отчество пациента",
+            "Год рождения пациента",
+            "Возраст пациента",
+            "tap_date",
+        ]
+    ]
+
+    df_pall.columns = [
+        "Подразделение",
+        "Отделение",
+        "Номер МКАБ",
+        "Фамилия",
+        "Имя",
+        "Отчество",
+        "Год рождения",
+        "Возраст",
+        "Дата последнего ТАПа в ЕМИАС",
+    ]
+
+    # styler = df_pall.style
+    # styler = styler.map(highlight_patients, subset=["tap_date"])
+    # styler.to_excel(metric_path + "\\result.xlsx")
+
     for department in df_pall["Подразделение"].unique():
         df_temp = df_pall[df_pall["Подразделение"] == department].drop(["Подразделение"], axis=1)
-        df_temp = df_temp.sort_values(by="Дата последнего ТАПа")
+        df_temp = df_temp.sort_values(by="Дата последнего ТАПа в ЕМИАС")
         # Фильтрация датафрейма по уникальному значению в колонке
         styler = df_temp.style
-        styler = styler.map(highlight_patients, subset=["Дата последнего ТАПа"])
-        styler.to_excel(metric_path + "\\" + str(department) + ".xlsx")
+        styler = styler.map(highlight_patients, subset=["Дата последнего ТАПа в ЕМИАС"])
+        styler.to_excel(metric_path + "\\" + str(department) + ".xlsx", index=False)
 
 
 def highlight_patients(s):

@@ -87,8 +87,7 @@ def get_new_department_name(x):
     Обновляем старые подразделения до ОСП
     """
     value = str(x)
-    if "Филиал №6 ГБУЗ МО Подольская ОКБ (Закрыто)" in value
-        or 'Климовская ЦГБ' in value:
+    if "Филиал №6 ГБУЗ МО Подольская ОКБ (Закрыто)" in value or "Климовская ЦГБ" in value:
         return "ОСП 6"
     elif "ГБУЗ МО «Подольская РБ» (Закрыто)" in value:
         return "ОСП 4"
@@ -96,13 +95,12 @@ def get_new_department_name(x):
         return "ОСП 2"
     elif "ГБУЗ МО Львовская Районная Больница (Закрыто)" in value:
         return "ОСП 7"
-    elif "ГБУЗ МО Подольская ГКБ №3 (Закрыто)" in value
-        or 'ПГКБ № 3' in value:
+    elif "ГБУЗ МО Подольская ГКБ №3 (Закрыто)" in value or "ПГКБ № 3" in value:
         return "ОСП 3"
     elif (
         "ГБУЗ МО Подольская ГП №1 (Закрыто)" in value
-        or 'ПГП №1' in value
-        or 'Подольская городская поликлиника №1' in value
+        or "ПГП №1" in value
+        or "Подольская городская поликлиника №1" in value
     ):
         return "ОСП 1"
     elif "ГБУЗ МО «Климовская ГБ №2» (Закрыто)" in value:
